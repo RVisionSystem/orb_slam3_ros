@@ -114,7 +114,12 @@ int main(int argc, char *argv[])
     vector<float> vTimesTrack;
     vTimesTrack.resize(tot_images);
 
+    //cout << endl << "-------" << endl;
     cout.precision(17);
+
+    /*cout << "Start processing sequence ..." << endl;
+    cout << "Images in the sequence: " << nImages << endl;
+    cout << "IMU data in the sequence: " << nImu << endl << endl;*/
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::IMU_MONOCULAR, true);
@@ -135,6 +140,9 @@ int main(int argc, char *argv[])
         {
             // Read image from file
             im = cv::imread(vstrImageFilenames[seq][ni],cv::IMREAD_UNCHANGED); //CV_LOAD_IMAGE_UNCHANGED);
+
+            // clahe
+            //clahe->apply(im,im);
 
             double tframe = vTimestampsCam[seq][ni];
 

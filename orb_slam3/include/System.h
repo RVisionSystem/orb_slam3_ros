@@ -172,6 +172,9 @@ public:
     bool SaveMap(const string &filename);
     // LoadMap(const string &filename);
 
+    bool SavePCD(const string &filename);
+    // CreatePCD
+    
     // Information from most recent processed frame
     // You can call this right after TrackMonocular (or stereo or RGBD)
     int GetTrackingState();

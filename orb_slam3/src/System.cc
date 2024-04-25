@@ -32,6 +32,8 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <Eigen/Dense>
+#include <opencv2/core/eigen.hpp>
 
 namespace ORB_SLAM3
 {
@@ -1615,6 +1617,49 @@ bool System::SaveMap(const string &filename)
     }
     return false;
 }
+
+
+bool System::SavePCD(const string &filename){
+    cout << endl << "Saving map points to " << filename << endl;
+
+    // Get the current map from mpAtlas
+    vector<MapPoint*> vMPs = GetAllMapPoints();
+
+    // Create PCD init string
+    std::string begin = std::string("# .PCD v.7 - Point Cloud Data file format\nVERSION .7\n");
+    begin += "FIELDS x y z\n";
+    begin += "SIZE 4 4 4\n";
+    begin += "TYPE F F F\n";
+    begin += "COUNT 1 1 1\n";
+
+    int width = vMPs.size();
+    begin += "WIDTH ";
+    begin += std::to_string(width);
+    begin += "\nHEIGHT 1\n";
+    begin += "VIEWPOINT 0 0 0 1 0 0 0\n";
+    begin += "POINTS ";
+    begin += std::to_string(width);
+    begin += "\nDATA ascii\n";
+
+    // File Opening:
+    ofstream f;
+    f.open(filename.c_str());
+    f << begin;
+
+    // Write the point clouds:
+    for(size_t i= 0; i < vMPs.size(); ++i){
+        MapPoint *pMP = vMPs[i];
+        if (pMP->isBad()) continue;
+        cv::Mat MPPositions;
+        cv::eigen2cv(pMP->GetWorldPos(), MPPositions);
+        f << setprecision(7) << MPPositions.at<float>(0) << " " << 
+        MPPositions.at<float>(1) << " " << MPPositions.at<float>(2) << endl;
+    }
+
+    f.close();
+    cout << endl << "Map Points saved!" << endl;
+
+  }
 
 } //namespace ORB_SLAM
 

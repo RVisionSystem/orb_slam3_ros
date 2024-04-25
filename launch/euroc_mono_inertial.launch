@@ -15,11 +15,32 @@
         <param name="world_frame_id"    type="string"   value="world" />
         <param name="cam_frame_id"      type="string"   value="camera" />
         <param name="imu_frame_id"      type="string"   value="imu" />
-        <param name="enable_pangolin"   type="bool"     value="true" />
+        <param name="enable_pangolin"   type="bool"     value="false" />
     </node>
     
     <!-- Visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find orb_slam3_ros)/config/orb_slam3_with_imu.rviz" output="screen" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find orb_slam3_ros)/config/orb_slam3_with_imu_map.rviz" output="screen" />
+
+            <!-- Launch Passthrough node -->
+    <node pkg="orb_slam3_ros" name="passthrough_cloud" type="passthrough" output="screen">
+        <remap from="/cloud"             to="/orb_slam3/all_points"/>
+        <remap from="/filtered_point_cloud"    to="/cloud"/>
+    </node>
+    
+    <!-- Launch the OctoMap server node -->
+    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" output="screen">
+        <!-- Set the resolution of the OctoMap -->
+        <param name="resolution" value="0.05" />
+        <!-- Set the frame ID of the OctoMap -->
+        <param name="world_frame_id" value="world" />
+        <!-- Set the occupancy threshold for marking cells -->
+        <param name="occupancy_thres" value="0.5" />
+        <!-- Set the free threshold for clearing cells -->
+        <param name="free_thres" value="0.3" />
+        <!-- Subscribe to the point cloud topic -->
+        <remap from="cloud_in" to="/cloud" />
+    </node>
+    
     
     <!-- Trajectory path -->
     <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_orb_slam3" output="screen" ns="orb_slam3_ros" >

@@ -54,14 +54,20 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2
   message_generation
+  pcl_conversions
+  pcl_ros
+  serial
+  std_srvs
 )
 
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
+find_package(PCL 1.7 REQUIRED )
 
 add_service_files(
   FILES
   SaveMap.srv
+  SavePCD.srv
 )
 
 generate_messages(
@@ -70,7 +76,7 @@ generate_messages(
 )
 
 catkin_package (
-  CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge image_transport tf sensor_msgs dynamic_reconfigure message_runtime
+  CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge image_transport tf sensor_msgs dynamic_reconfigure message_runtime serial
   LIBRARIES {PROJECT_NAME} libDBoW2 libg2o
 )
 
@@ -87,6 +93,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
   ${Pangolin_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 include(${PROJECT_SOURCE_DIR}/orb_slam3/Thirdparty/DBoW2/CMakeLists.txt)
@@ -159,12 +166,17 @@ target_link_libraries(${PROJECT_NAME}
   ${OpenCV_LIBS}
   ${EIGEN3_LIBS}
   ${Pangolin_LIBRARIES}
+  ${PCL_LIBRARIES}
   ${PROJECT_SOURCE_DIR}/orb_slam3/Thirdparty/DBoW2/lib/libDBoW2.so
   ${PROJECT_SOURCE_DIR}/orb_slam3/Thirdparty/g2o/lib/libg2o.so
   -lboost_system
   -lboost_serialization
   -lcrypto
+  i2c
 )
+
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 ## ROS node
 add_executable(ros_mono
@@ -222,6 +234,23 @@ add_executable(ros_rgbd_inertial
   src/common.cc
 )
 target_link_libraries(ros_rgbd_inertial
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+add_executable (passthrough 
+  src/passthrough.cc
+)
+target_link_libraries(passthrough
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/orb_slam3/Examples)
+
+add_executable(mono_inertial
+        /home/ponkhao/orbslam3_ws/src/orb_slam3_ros/orb_slam3/Examples/mono_inertial.cc
+)
+target_link_libraries(mono_inertial
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )

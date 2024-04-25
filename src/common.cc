@@ -56,10 +56,24 @@ bool save_traj_srv(orb_slam3_ros::SaveMap::Request &req, orb_slam3_ros::SaveMap:
     return res.success;
 }
 
+bool save_PCD_srv(orb_slam3_ros::SavePCD::Request &req, orb_slam3_ros::SavePCD::Response &res)
+{
+    res.success = pSLAM->SavePCD(req.name);
+    
+    if (res.success)
+        ROS_INFO("PCD was saved as %s.pcd", req.name.c_str());
+    else
+        ROS_ERROR("PCD could not be saved.");
+    
+    return res.success;
+}
+
+
 void setup_services(ros::NodeHandle &node_handler, std::string node_name)
 {
     static ros::ServiceServer save_map_service = node_handler.advertiseService(node_name + "/save_map", save_map_srv);
     static ros::ServiceServer save_traj_service = node_handler.advertiseService(node_name + "/save_traj", save_traj_srv);
+    static ros::ServiceServer save_PCD_service = node_handler.advertiseService(node_name + "/save_PCD", save_PCD_srv);
 }
 
 void setup_publishers(ros::NodeHandle &node_handler, image_transport::ImageTransport &image_transport, std::string node_name)

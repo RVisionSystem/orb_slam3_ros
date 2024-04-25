@@ -35,7 +35,6 @@ void LoadImagesTUMVI(const string &strImagePath, const string &strPathTimes,
 
 void LoadIMU(const string &strImuPath, vector<double> &vTimeStamps, vector<cv::Point3f> &vAcc, vector<cv::Point3f> &vGyro);
 
-
 double ttrack_tot = 0;
 int main(int argc, char **argv)
 {
@@ -79,6 +78,13 @@ int main(int argc, char **argv)
     for (seq = 0; seq<num_seq; seq++)
     {
         cout << "Loading images for sequence " << seq << "...";
+
+        //string pathSeq(argv[(2*seq) + 3]);
+        //string pathTimeStamps(argv[(2*seq) + 4]);
+
+        //string pathCam0 = pathSeq + "/mav0/cam0/data";
+        //string pathImu = pathSeq + "/mav0/imu0/data.csv";
+
         LoadImagesTUMVI(string(argv[3*(seq+1)]), string(argv[3*(seq+1)+1]), vstrImageFilenames[seq], vTimestampsCam[seq]);
         cout << "LOADED!" << endl;
 
@@ -133,13 +139,11 @@ int main(int argc, char **argv)
         cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
         for(int ni=0; ni<nImages[seq]; ni++, proccIm++)
         {
-
             // Read image from file
             im = cv::imread(vstrImageFilenames[seq][ni],cv::IMREAD_GRAYSCALE); //,cv::IMREAD_GRAYSCALE);
 
             // clahe
             clahe->apply(im,im);
-
 
             // cout << "mat type: " << im.type() << endl;
             double tframe = vTimestampsCam[seq][ni];
